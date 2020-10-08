@@ -1,76 +1,86 @@
-from  tkinter import *
-from game_window import *
+from tkinter import *
 import operator
 import tkinter.messagebox
-def record_rewtite(list):
-    with open('record.txt','w') as f:
-        f.write(list)
-def Start1():
-    canvas.pack()
-    Play(root)
-    #root.mainloop()
+from levels import *
+import time
 
-def Play(root):
-    global top10_list
-    global user_name
-    while True:
+
+# =============Funks
+def restart(snake, level, num):
+    snake.snake = [[10, 10], [10, 20], [10, 30]]
+    snake.eaten = 0
+    snake.direction = 'right'
+    level.food = [[-10, -10]]
+    level.bombs = bombs[num].copy()
+
+
+def draw(canvas, list, color):
+    for i in range(len(list)):
+        canvas.create_rectangle(
+            list[i][0], list[i][1], list[i][0] + 10, list[i][1] + 10, fill=(color))
+
+
+def change_level():
+    global in_game
+    global current_level
+    in_game = False
+    current_level = Levels[switch_variable.get()]
+    restart(user_snake, current_level, switch_variable.get())
+    in_game = True
+    play(root, canvas, current_level, user_snake)
+
+
+def play(root, canvas, current_level, user_snake):
+    while in_game:
         root.update()
-        Move()
-        if random.randint(0,11)>0:
-            Spawn_food()
-        Print(canvas)
-        time.sleep(0.2-Score()*0.01 if Score()*0.01<0.16 else 0.04)
-        if Eror():
-            if Score()>=antirecord or len(top10)<10:
-                top10_list+=str(Score())+' '+str(user_name.get())+'\n'
-                record_rewtite(top10_list)
-            again=tkinter.messagebox.askquestion(
-                'game over','Игра окончена \n Набрано:'+str(Score())+' очков \n Начать заново?')
-            if again=='yes':
-                Restart()
-            else: break
+        root.update_idletasks()
+
+        canvas.delete('all')
+        for list, color in [[current_level.food, 'green'],
+                            [current_level.walls, 'blue'],
+                            [current_level.bombs, 'red'],
+                            [user_snake.snake, 'black']]:
+            draw(canvas, list, color)
+
+        if len(user_snake.snake) == 0:
+            break
+        user_snake.move()
+        current_level.spawn_food()
+        if user_snake.snake[0] in current_level.food:
+            current_level.food.remove(user_snake.snake[0])
+            user_snake.grow()
+        if user_snake.eror() or user_snake.snake[0] in current_level.walls:
+            break
+        if user_snake.snake[0] in current_level.bombs:
+            current_level.bombs.remove(user_snake.snake[0])
+            user_snake.damage(2)
+        time.sleep(0.2)
 
 
-#settings
-root=Tk()
+# ========================== ROOT WINDOW SETINGS
+root = Tk()
 canvas = Canvas(root, width=600, height=600)
-root.resizable(width=False,height=False)
-root.geometry('600x700')
+root.resizable(width=False, height=False)
+root.geometry('800x700')
 root.title('SNAKE')
-root['bg']='black'
-root.bind('<Up>', up)
-root.bind('<Down>', down)
-root.bind('<Right>', right)
-root.bind('<Left>', left)
-#record
-stats={}
-top10=[]
-antirecord=0
-file=open('record.txt','r')
-for i in file.readlines():
-    i=i.strip().split()
-    if i==[]:
-        break
-    stats[str(i[0])]=i[1]
-file.close()
-for i in sorted(stats.items(),key=operator.itemgetter(0),reverse=True):
-    if int(i[0])<antirecord:
-        record=int(i[1])
-    if len(top10)==10:
-        break
-    top10.append(str(i[0]+' '+i[1]))
-top10_list=''
-for i in top10:
-    top10_list+=i+'\n'
-#start
+root['bg'] = 'black'
 
-great=Label(root,text='Welcom to the snake game \n to begin press \'START\'',bg='black',fg='white').pack()
-high_score=Label(root,text=top10_list,bg='black',fg='white')
-high_score.pack(side=RIGHT,fill=Y)
+switch_variable = IntVar()
+switch_variable.set(None)
+for_buttons = [("Tutorial", 0.26, 0),
+               ("Level  1", 0.30, 1),
+               ("Level  2", 0.34, 2),
+               ("Level  3", 0.38, 3),
+               ]
+for i in for_buttons:
+    Radiobutton(root, text=i[0], variable=switch_variable,
+                indicatoron=False, value=i[2], width=8,
+                command=change_level).place(anchor=NW, rely=i[1])
 
-start_button=Button(root,text='START',command=Start1).pack()
-###entry,entry.get()
-user_name=Entry(root)
-user_name.pack()
+canvas.pack(side=BOTTOM)
+in_game = False
+user_snake = Snake(root)
+current_level = None
 
+# ==========Progres
 root.mainloop()
