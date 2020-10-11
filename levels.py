@@ -12,8 +12,8 @@ bombs = [[[500, 20], [510, 20], [520, 20], [500, 30], [510, 30], [520, 30], [500
          ]
 
 Levels = [
-    Level(10, walls=walls[0], win_point=[[500,500]]),
-    Level(0),
+    Level(10, walls=walls[0], win_point=[[100,100]]),
+    Level(0, win_point=[[100,100]]),
     Level(9),
     Level(9)
 ]

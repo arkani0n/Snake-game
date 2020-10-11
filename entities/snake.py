@@ -48,15 +48,15 @@ class Snake:
         for i in range(num if len(self.snake) > num else len(self.snake)):
             self.snake.remove(self.snake[0])
 
-    def eror(self):
-        if self.snake[0][1] < 0:
+    def is_error(self):
+        if len(self.snake) == 0 or \
+                self.snake[0][1] < 0 or \
+                self.snake[0][0] < 0 or \
+                self.snake[0][1] > 600 or \
+                self.snake[0][0] > 600 or \
+                self.snake[0] in self.snake[2::]:
             return True
-        if self.snake[0][0] < 0:
-            return True
-        if self.snake[0][1] > 600:
-            return True
-        if self.snake[0][0] > 600:
-            return True
-        if self.snake[0] in self.snake[2::]:
-            return True
+
+    def head(self):
+        return self.snake[0]
 
