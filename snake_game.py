@@ -1,11 +1,9 @@
-from tkinter import *
-import operator
-import tkinter.messagebox
+import tkinter, time
+
 from levels import *
-import time
 
 
-# =============Funks
+# ============= Functions
 def restart(snake, level, num):
     snake.snake = [[10, 10], [10, 20], [10, 30]]
     snake.eaten = 0
@@ -61,15 +59,15 @@ def play(root, canvas, current_level, user_snake):
 
 
 
-# ========================== ROOT WINDOW SETINGS
-root = Tk()
-canvas = Canvas(root, width=600, height=600)
+# ========================== ROOT WINDOW SETTINGS
+root = tkinter.Tk()
+canvas = tkinter.Canvas(root, width=600, height=600)
 root.resizable(width=False, height=False)
 root.geometry('800x700')
 root.title('SNAKE')
 root['bg'] = 'black'
 
-switch_variable = IntVar()
+switch_variable = tkinter.IntVar()
 switch_variable.set(None)
 for_buttons = [("Tutorial", 0.26, 0),
                ("Level  1", 0.30, 1),
@@ -77,14 +75,14 @@ for_buttons = [("Tutorial", 0.26, 0),
                ("Level  3", 0.38, 3),
                ]
 for i in for_buttons:
-    Radiobutton(root, text=i[0], variable=switch_variable,
+    tkinter.Radiobutton(root, text=i[0], variable=switch_variable,
                 indicatoron=False, value=i[2], width=8,
-                command=change_level).place(anchor=NW, rely=i[1])
+                command=change_level).place(anchor=tkinter.NW, rely=i[1])
 
-canvas.pack(side=BOTTOM)
+canvas.pack(side=tkinter.BOTTOM)
 in_game = False
-user_snake = Snake(root)
+user_snake = classes.Snake(root)
 current_level = None
 
-# ==========Progres
+# ========== Progress
 root.mainloop()
