@@ -4,20 +4,12 @@ import settings
 
 from entities.snake import Snake
 from levels import *
-
+from entities.engine import *
 # ============= Functions
-def restart(snake, level, num):
-    snake.snake = [[10, 10], [10, 20], [10, 30]]
-    snake.eaten = 0
-    snake.direction = 'right'
-    level.food = [[-10, -10]]
-    level.bombs = bombs[num].copy()
 
 
-def draw(canvas, list, color):
-    for i in range(len(list)):
-        canvas.create_rectangle(
-            list[i][0], list[i][1], list[i][0] + 10, list[i][1] + 10, fill=(color))
+
+
 
 
 def change_level():
@@ -51,8 +43,8 @@ def play(root, canvas, current_level, user_snake, level_index):
         else:
             if user_snake.snake[0] in current_level.win_point:
                 progress[str(level_index+1)]='1'
-                update_progress()
-                place_level_button()
+                update_progress(progress)
+                place_level_button(already_placed,progress)
                 return
             user_snake.move()
             current_level.spawn_food()
@@ -69,12 +61,11 @@ def play(root, canvas, current_level, user_snake, level_index):
 
 # ========== Progress
 
-def place_level_button():
+def place_level_button(already_placed,progress):
     with open(settings.USER_PROGRESS_FILE, 'r+') as file:
         for i in file.readlines():
             i=i.strip().split('=')
             progress[i[0]]=i[1]
-        print(progress)
         for i in for_buttons:
             if i[0] in already_placed:
                 continue
@@ -84,11 +75,6 @@ def place_level_button():
                             command=change_level).place(anchor=tkinter.NW, rely=i[1])
                 already_placed.append(i[2])
 
-def update_progress():
-    with open(settings.USER_PROGRESS_FILE,'w') as file:
-        for i in progress:
-            file.write(i+'='+progress[i])
-            file.write('\n')
 
 
 # ========================== ROOT WINDOW SETTINGS
@@ -113,5 +99,5 @@ in_game = False
 user_snake = Snake(root)
 current_level = None
 progress = {}
-place_level_button()
+place_level_button(already_placed,progress)
 root.mainloop()
