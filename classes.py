@@ -65,7 +65,7 @@ class Snake:
 
 class Level:
     def __init__(self, rate, walls=[], bombs=[], food_point1=[0, 0],
-                 food_point2=[600, 600], win_point=None, food_from_start=[[-10, -10]]):
+                 food_point2=[600, 600], win_point=[], food_from_start=[[-10, -10]]):
 
         self.win_point = win_point
         self.walls = walls

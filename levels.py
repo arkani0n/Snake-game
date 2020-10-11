@@ -10,7 +10,7 @@ bombs = [[[500, 20], [510, 20], [520, 20], [500, 30], [510, 30], [520, 30], [500
          [],
          [],
          ]
-Level_1 = classes.Level(10, walls=wall[0])
+Level_1 = classes.Level(10, walls=wall[0], win_point=[[500,500]])
 Level_2 = classes.Level(0)
 Level_3 = classes.Level(9)
 Level_4 = classes.Level(9)
