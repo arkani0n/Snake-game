@@ -31,6 +31,9 @@ def change_level():
 
 
 def play(root, canvas, current_level, user_snake):
+    global in_game
+    end = 0
+
     while in_game:
         root.update()
         root.update_idletasks()
@@ -41,20 +44,21 @@ def play(root, canvas, current_level, user_snake):
                             [current_level.bombs, 'red'],
                             [user_snake.snake, 'black']]:
             draw(canvas, list, color)
+        if len(user_snake.snake) == 0 or (user_snake.eror() or user_snake.snake[0] in current_level.walls):
+            in_game=False
+        else:
+            user_snake.move()
+            current_level.spawn_food()
+            if user_snake.snake[0] in current_level.food:
+                current_level.food.remove(user_snake.snake[0])
+                user_snake.grow()
 
-        if len(user_snake.snake) == 0:
-            break
-        user_snake.move()
-        current_level.spawn_food()
-        if user_snake.snake[0] in current_level.food:
-            current_level.food.remove(user_snake.snake[0])
-            user_snake.grow()
-        if user_snake.eror() or user_snake.snake[0] in current_level.walls:
-            break
-        if user_snake.snake[0] in current_level.bombs:
-            current_level.bombs.remove(user_snake.snake[0])
-            user_snake.damage(2)
-        time.sleep(0.2)
+            if user_snake.snake[0] in current_level.bombs:
+                current_level.bombs.remove(user_snake.snake[0])
+                user_snake.damage(2)
+
+            time.sleep(0.1 if in_game else 0)
+
 
 
 # ========================== ROOT WINDOW SETINGS
