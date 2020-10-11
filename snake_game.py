@@ -43,7 +43,7 @@ def play(root, canvas, current_level, user_snake):
                             [user_snake.snake, 'black']]:
             draw(canvas, list, color)
         if len(user_snake.snake) == 0 or (user_snake.eror() or user_snake.snake[0] in current_level.walls):
-            in_game=False
+            in_game = False
         else:
             user_snake.move()
             current_level.spawn_food()
@@ -74,15 +74,33 @@ for_buttons = [("Tutorial", 0.26, 0),
                ("Level  2", 0.34, 2),
                ("Level  3", 0.38, 3),
                ]
-for i in for_buttons:
-    tkinter.Radiobutton(root, text=i[0], variable=switch_variable,
-                indicatoron=False, value=i[2], width=8,
-                command=change_level).place(anchor=tkinter.NW, rely=i[1])
 
+allready_placed = []
 canvas.pack(side=tkinter.BOTTOM)
 in_game = False
 user_snake = classes.Snake(root)
 current_level = None
 
 # ========== Progress
+
+def place_level_button():
+    progress={}
+    with open('user_progress.txt', 'r+') as file:
+        for i in file.readlines():
+            i=i.strip().split('=')
+            progress[i[0]]=i[1]
+        print(progress)
+        for i in for_buttons:
+            if i[0] in allready_placed:
+                continue
+            if int(progress[i[0]]):
+                print(((progress[i[0]])))
+                tkinter.Radiobutton(root, text=i[0], variable=switch_variable,
+                            indicatoron=False, value=i[2], width=8,
+                            command=change_level).place(anchor=tkinter.NW, rely=i[1])
+                allready_placed.append(i[2])
+
+
+place_level_button()
+# ==========Progres
 root.mainloop()
