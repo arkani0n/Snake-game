@@ -1,5 +1,7 @@
 import tkinter, time
 
+from entities.snake import Snake
+
 from levels import *
 
 
@@ -85,7 +87,7 @@ for_buttons = [("Tutorial", 0.26, 0),
 allready_placed = []
 canvas.pack(side=tkinter.BOTTOM)
 in_game = False
-user_snake = classes.Snake(root)
+user_snake = Snake(root)
 current_level = None
 progress = {}
 
@@ -113,5 +115,5 @@ def update_progress():
             file.write(i+'='+progress[i])
             file.write('\n')
 place_level_button()
-# ==========Progres
+# ========== Progress
 root.mainloop()
