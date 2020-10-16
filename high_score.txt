@@ -1,0 +1,3 @@
+10 vanya
+9 sasha
+8 igor

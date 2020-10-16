@@ -1,4 +1,5 @@
 import tkinter, time
+import operator
 
 import settings
 
@@ -6,6 +7,34 @@ from entities.snake import Snake
 from levels import *
 
 # ============= Functions
+def show_highscores(for_label):
+    stats = {}
+    top10 = []
+
+    with open('high_score.txt', 'r') as file:
+        first_line=True
+        for i in file.readlines():
+            i = i.strip().split()
+            if i == []:
+                break
+            stats[str(i[0])] = i[1]
+            if first_line:
+                first_line=False
+                record=i[0]
+
+        for i in sorted(stats.items(), key=operator.itemgetter(1), reverse=True):
+            if len(top10) == 10:
+                record = int(i[1])
+                break
+            top10.append(str(i[0] + ' ' + i[1]))
+        top10_list = ''
+        for i in top10:
+            top10_list += i + '\n'
+    for_label = tkinter.Label(root, text=top10_list, bg='black', fg='white')\
+        .pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    return record
+#                                 TODO highscore label destroy, show_highscore place correctly
+
 def restart(snake, level, num):
     snake.snake = [[10, 10], [10, 20], [10, 30]]
     snake.eaten = 0
@@ -33,8 +62,7 @@ def change_level():
 
 def play(root, canvas, current_level, user_snake, level_index):
     global in_game
-    end = 0
-
+    print(show_highscores())
     while in_game:
         root.update()
         root.update_idletasks()
@@ -74,7 +102,6 @@ def place_level_button():
         for i in file.readlines():
             i=i.strip().split('=')
             progress[i[0]]=i[1]
-        print(progress)
         for i in for_buttons:
             if i[0] in already_placed:
                 continue
@@ -115,3 +142,5 @@ current_level = None
 progress = {}
 place_level_button()
 root.mainloop()
+
+
