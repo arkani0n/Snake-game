@@ -1,3 +1,4 @@
-10 vanya
+10 ivan
 9 sasha
 8 igor
+0 anton
