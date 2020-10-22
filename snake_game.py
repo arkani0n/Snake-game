@@ -5,11 +5,16 @@ import settings
 from entities.snake import Snake
 import engine
 import levels
+from tkinter import messagebox
 
 
 # ============= Functions
+def show_tutorial():
+    global for_labels
+    for_labels = tkinter.Label(root, text=settings.for_tutorial, bg='black', fg='white',font='Calibri 13')
+    for_labels.pack(side=tkinter.TOP, fill=tkinter.Y)
 def show_highscore():
-    global highscore_label
+    global for_labels
     stats = {}
     top10 = []
     with open('high_score.txt', 'r') as file:
@@ -31,11 +36,9 @@ def show_highscore():
         top10_list = ''
         for i in top10:
             top10_list += i + '\n'
-    highscore_label = tkinter.Label(root, text=top10_list, bg='black', fg='white')
-    highscore_label.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+    for_labels = tkinter.Label(root, text=top10_list, bg='black', fg='white')
+    for_labels.pack(side=tkinter.RIGHT, fill=tkinter.Y)
     return record
-
-
 
 
 root = tkinter.Tk()
@@ -51,7 +54,7 @@ level_switch_variable = tkinter.IntVar()
 level_switch_variable.set(None)
 
 # ???
-highscore_label = None
+for_labels = None
 already_placed_buttons = []
 
 in_game = False
@@ -77,13 +80,16 @@ def change_level():
 
 def play(root, canvas, current_level, user_snake, level_index):
     global in_game
-    global highscore_label
+    global for_labels
 
-    if highscore_label != None:
-        highscore_label.destroy()
-    show_highscore()
+    if for_labels != None:
+        for_labels.destroy()
+    if level_index==3:
+        show_highscore()
+    elif level_index==0:
+        show_tutorial()
 
-    while in_game:
+    while True:
         root.update()
         root.update_idletasks()
 
@@ -99,7 +105,12 @@ def play(root, canvas, current_level, user_snake, level_index):
 
         # logic
         if user_snake.is_error() or (user_snake.head() in current_level.walls):
-            in_game = False
+            is_again = tkinter.messagebox.askquestion(
+                'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
+            if is_again == 'yes':
+                engine.restart(user_snake, current_level, level_index)
+            else:
+                break
         else:
             if user_snake.head() in current_level.win_point:
                 progress = engine.read_progress()
@@ -113,12 +124,13 @@ def play(root, canvas, current_level, user_snake, level_index):
             if user_snake.head() in current_level.food:
                 current_level.food.remove(user_snake.head())
                 user_snake.grow()
+                user_snake.eaten+=1
 
             if user_snake.head() in current_level.bombs:
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
 
-            time.sleep(0.1 if in_game else 0)
+            time.sleep(0.05)  
 
 
 def place_level_button(placed_buttons):
@@ -140,3 +152,4 @@ def place_level_button(placed_buttons):
 place_level_button(already_placed_buttons)
 canvas.pack(side=tkinter.BOTTOM)
 root.mainloop()
+

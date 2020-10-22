@@ -18,8 +18,17 @@ buttons = [
     ButtonData("Tutorial", 0.26, 0),
     ButtonData("Level  1", 0.30, 1),
     ButtonData("Level  2", 0.34, 2),
-    ButtonData("Level  3", 0.38, 3),
+    ButtonData("Survival", 0.38, 3),
 ]
+
+
 
 # gameplay
 DAMAGE_BOMB = 2
+
+for_tutorial='Use W A S D to move \n' \
+             'green squares is food, eat them to grow \n' \
+             'red squares is bombs they will decrease' \
+             'your lenght by ' + str(DAMAGE_BOMB) + '\n' \
+            'blue squares is walls hiting them will make ' \
+            'your game over'
