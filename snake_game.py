@@ -80,7 +80,7 @@ def play(root, canvas, current_level, user_snake, level_index):
         lowest,all_scores=show_highscore()
     elif level_index == 0:
         show_tutorial()
-    while True:
+    while show_massagebox:
         root.update()
         root.update_idletasks()
 
@@ -95,17 +95,18 @@ def play(root, canvas, current_level, user_snake, level_index):
             engine.draw(canvas, list, color)
 
         # logic
-        if user_snake.is_error() or (user_snake.head() in current_level.walls) and in_game:
+        if user_snake.is_error() or (user_snake.head() in current_level.walls):
             #in_game = False
             if level_index==3:
                 if user_snake.eaten >= lowest:
                     all_scores.append(str(user_snake.eaten)+'='+user_name)
                 engine.update_data(all_scores)
             if show_massagebox:
-                is_show_massagebox=False
+                show_massagebox=False
                 is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
                 if is_again == 'yes':
+                    show_massagebox=True
                     engine.restart(user_snake, current_level, level_index)
             else:
                 break
@@ -128,7 +129,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
 
-            time.sleep(0.05 if in_game else 0)
+            time.sleep(0.1 if show_massagebox else 0)
 
 
 def place_level_button(placed_buttons):

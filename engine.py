@@ -40,9 +40,11 @@ def read_data(mode):
     with open(settings.USER_PROGRESS_FILE if mode=='progress'
             else settings.HIGHSCORE_FILE,'r') as file:
         for i in file.readlines():
-            i = i.strip().split('=' if mode==mode=='progress' else ' ')
+            i = i.strip().split('=' if mode=='progress' else ' ')
             if i==[]:
                 break
-            data[i[0]]=i[1]
+            if mode=='progress':
+                data[i[0]]=i[1]
+            else: data[int(i[0])]=i[1]
         return data
 
