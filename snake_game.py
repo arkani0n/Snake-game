@@ -40,7 +40,6 @@ root.resizable(width=False, height=False)
 root.geometry(settings.ROOT_SIZE)
 root.title(settings.GAME_TITLE)
 root['bg'] = settings.ROOT_BG
-
 canvas = tkinter.Canvas(root, width=600, height=600)
 
 # ???
@@ -161,11 +160,19 @@ def start():
         for_labels.destroy()
     else: user_name_label.destroy()
     user_name = user_name_entery.get()
-    if user_name=='' or settings.NOT_ALLOWED_SIMMONS in user_name:
-
-        for_labels=tkinter.Label(text='Enter your name please',bg='red')
+    if user_name=='':
+        for_labels = tkinter.Label(text='Enter your name please', bg='red')
         for_labels.place(rely=0.37, relx=0.4)
         return
+    for i in settings.NOT_ALLOWED_SIMMONS:
+        if i in user_name:
+            if for_labels != None:
+                for_labels.destroy()
+            for_labels=tkinter.Label(text='Not allowed symbol')
+            for_labels.place(rely=0.37, relx=0.4)
+
+            return
+
     start_game_button.destroy()
     user_name_entery.destroy()
 
