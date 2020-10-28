@@ -74,6 +74,9 @@ def play(root, canvas, current_level, user_snake, level_index):
     global for_labels
     global show_massagebox
     show_massagebox=True
+
+    print(current_level.walls)
+
     if for_labels != None:
         for_labels.destroy()
     if level_index == 3:
@@ -84,15 +87,7 @@ def play(root, canvas, current_level, user_snake, level_index):
         root.update()
         root.update_idletasks()
 
-        canvas.delete('all')
 
-        # draw objects
-        for list, color in [[current_level.food, settings.COLOR_FOOD],
-                            [current_level.walls, settings.COLOR_WALL],
-                            [current_level.bombs, settings.COLOR_BOMB],
-                            [current_level.win_point, settings.COLOR_WIN_POINT],
-                            [user_snake.snake, settings.COLOR_SNAKE]]:
-            engine.draw(canvas, list, color)
 
         # logic
         if user_snake.is_error() or (user_snake.head() in current_level.walls):
@@ -128,6 +123,17 @@ def play(root, canvas, current_level, user_snake, level_index):
             if user_snake.head() in current_level.bombs:
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
+
+            canvas.delete('all')
+
+            # draw objects
+            for list, color in [[current_level.food, settings.COLOR_FOOD],
+                                [current_level.walls, settings.COLOR_WALL],
+                                [current_level.bombs, settings.COLOR_BOMB],
+                                [current_level.win_point, settings.COLOR_WIN_POINT],
+                                [user_snake.snake, settings.COLOR_SNAKE]]:
+                engine.draw(canvas, list, color)
+
 
             time.sleep(0.1 if show_massagebox else 0)
 
