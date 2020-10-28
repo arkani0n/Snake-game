@@ -11,34 +11,28 @@ from tkinter import messagebox
 # ============= Functions
 def show_tutorial():
     global for_labels
-    for_labels = tkinter.Label(root, text=settings.for_tutorial, bg='black', fg='white',font='Calibri 13')
+    for_labels = tkinter.Label(root, text=settings.for_tutorial, bg='black', fg='white', font='Calibri 13')
     for_labels.pack(side=tkinter.TOP, fill=tkinter.Y)
+
+
 def show_highscore():
     global for_labels
-    stats = {}
     top10 = []
-    with open('high_score.txt', 'r') as file:
-        first_line = True
-        for i in file.readlines():
-            if i == []:
-                break
-            i = i.strip().split()
+    stats = engine.read_data('highscore')
+    stats=sorted(stats.items(), key=operator.itemgetter(0), reverse=True)
+    for i in stats:
+        if len(top10) == 10:
+            break
+        top10.append(str(i[0]) + ' ' + i[1])
+    all_scores=top10.copy()
+    lowest_score=int(top10[-1].split()[0])
+    top10_list = ''
+    for i in top10:
+        top10_list += i + '\n'
 
-            stats[int(i[0])] = i[1]
-            if first_line:
-                first_line = False
-                record = i[0]
-        for i in sorted(stats.items(), key=operator.itemgetter(0), reverse=True):
-            if len(top10) == 10:
-                record = int(i[1])
-                break
-            top10.append(str(i[0]) + ' ' + i[1])
-        top10_list = ''
-        for i in top10:
-            top10_list += i + '\n'
     for_labels = tkinter.Label(root, text=top10_list, bg='black', fg='white')
-    for_labels.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-    return record
+    for_labels.place(anchor=tkinter.SE,rely=0.5, relx=1)
+    return lowest_score, all_scores
 
 
 root = tkinter.Tk()
@@ -57,7 +51,8 @@ level_switch_variable.set(None)
 for_labels = None
 already_placed_buttons = []
 
-in_game = False
+show_massagebox = True
+user_name = None
 user_snake = Snake(root)
 current_level = None
 
@@ -72,20 +67,20 @@ def change_level():
     current_level = levels.Levels[current_level_index]
     engine.restart(user_snake, current_level, current_level_index)
 
-    play(root, canvas, current_level, user_snake, current_level_index)
+    play(root, canvas, current_level, user_snake, current_level_index,)
 
 
 def play(root, canvas, current_level, user_snake, level_index):
     global for_labels
-    global in_game
+    global show_massagebox
+    show_massagebox=True
     if for_labels != None:
         for_labels.destroy()
-    if level_index==3:
-        show_highscore()
-    elif level_index==0:
+    if level_index == 3:
+        lowest,all_scores=show_highscore()
+    elif level_index == 0:
         show_tutorial()
-    in_game=True
-    while in_game:
+    while True:
         root.update()
         root.update_idletasks()
 
@@ -101,16 +96,22 @@ def play(root, canvas, current_level, user_snake, level_index):
 
         # logic
         if user_snake.is_error() or (user_snake.head() in current_level.walls) and in_game:
-            in_game=False
-            is_again = tkinter.messagebox.askquestion(
+            #in_game = False
+            if level_index==3:
+                if user_snake.eaten >= lowest:
+                    all_scores.append(str(user_snake.eaten)+'='+user_name)
+                engine.update_data(all_scores)
+            if show_massagebox:
+                is_show_massagebox=False
+                is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
-            if is_again == 'yes':
-                engine.restart(user_snake, current_level, level_index)
+                if is_again == 'yes':
+                    engine.restart(user_snake, current_level, level_index)
             else:
                 break
         else:
             if user_snake.head() in current_level.win_point:
-                progress = engine.read_progress()
+                progress = engine.read_data('progress')
                 progress[str(level_index + 1)] = '1'
                 engine.update_progress(progress)
 
@@ -121,7 +122,7 @@ def play(root, canvas, current_level, user_snake, level_index):
             if user_snake.head() in current_level.food:
                 current_level.food.remove(user_snake.head())
                 user_snake.grow()
-                user_snake.eaten+=1
+                user_snake.eaten += 1
 
             if user_snake.head() in current_level.bombs:
                 current_level.bombs.remove(user_snake.head())
@@ -131,7 +132,7 @@ def play(root, canvas, current_level, user_snake, level_index):
 
 
 def place_level_button(placed_buttons):
-    progress = engine.read_progress()
+    progress = engine.read_data('progress')
 
     # draw buttons
     for button in settings.buttons:
@@ -144,25 +145,31 @@ def place_level_button(placed_buttons):
                                 indicatoron=False, value=button.value, width=8,
                                 command=change_level).place(anchor=tkinter.NW, rely=button.relY)
             placed_buttons.append(button.value)
+
+
 def start():
+    global user_name
+    global for_labels
+    if for_labels != None:
+        for_labels.destroy()
+    else: user_name_label.destroy()
+    user_name = user_name_entery.get()
+    if user_name=='' or settings.NOT_ALLOWED_SIMMONS in user_name:
 
-    name=user_name.get()
-
-    user_name_label.destroy()
+        for_labels=tkinter.Label(text='Enter your name please',bg='red')
+        for_labels.place(rely=0.37, relx=0.4)
+        return
     start_game_button.destroy()
-    user_name.destroy()
+    user_name_entery.destroy()
 
     canvas.pack(side=tkinter.BOTTOM)
     place_level_button(already_placed_buttons)
 
-
-
-user_name=tkinter.Entry(root)
-start_game_button=tkinter.Button(text='Start',command=start)
-user_name_label=tkinter.Label(text='Enter your name')
-user_name_label.place(rely=0.4,relx=0.29)
-user_name.place(rely=0.4,relx=0.4)
-start_game_button.place(relx=0.4,rely=0.45)
+user_name_entery = tkinter.Entry(root)
+start_game_button = tkinter.Button(text='Start', command=start)
+user_name_label = tkinter.Label(text='Enter your name')
+user_name_label.place(rely=0.37, relx=0.4)
+user_name_entery.place(rely=0.4, relx=0.4)
+start_game_button.place(relx=0.45, rely=0.43)
 
 root.mainloop()
-

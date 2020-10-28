@@ -2,7 +2,9 @@ from entities.buttonData import ButtonData
 
 GAME_TITLE = "SNAKE"
 USER_PROGRESS_FILE = "user_progress.txt"
+HIGHSCORE_FILE='high_score.txt'
 
+NOT_ALLOWED_SIMMONS= ' \\/,.:;\'\"=-+_!@#$%^&*()~`|{[}]<>?'
 ROOT_SIZE = "800x700" # Full window size
 ROOT_BG = "black"
 
