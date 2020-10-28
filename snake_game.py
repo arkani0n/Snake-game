@@ -65,31 +65,27 @@ current_level = None
 # ??
 
 def change_level():
-    global in_game
     global current_level
 
     current_level_index = level_switch_variable.get()
-    in_game = False
 
     current_level = levels.Levels[current_level_index]
     engine.restart(user_snake, current_level, current_level_index)
 
-    in_game = True
     play(root, canvas, current_level, user_snake, current_level_index)
 
 
 def play(root, canvas, current_level, user_snake, level_index):
-    global in_game
     global for_labels
-
+    global in_game
     if for_labels != None:
         for_labels.destroy()
     if level_index==3:
         show_highscore()
     elif level_index==0:
         show_tutorial()
-
-    while True:
+    in_game=True
+    while in_game:
         root.update()
         root.update_idletasks()
 
@@ -104,7 +100,8 @@ def play(root, canvas, current_level, user_snake, level_index):
             engine.draw(canvas, list, color)
 
         # logic
-        if user_snake.is_error() or (user_snake.head() in current_level.walls):
+        if user_snake.is_error() or (user_snake.head() in current_level.walls) and in_game:
+            in_game=False
             is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
             if is_again == 'yes':
@@ -130,7 +127,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
 
-            time.sleep(0.05)  
+            time.sleep(0.05 if in_game else 0)
 
 
 def place_level_button(placed_buttons):
@@ -142,14 +139,30 @@ def place_level_button(placed_buttons):
         if button.value in placed_buttons:
             continue
 
-        if progress[str(button.value)] == '1':
+        elif progress[str(button.value)] == '1':
             tkinter.Radiobutton(root, text=button.name, variable=level_switch_variable,
                                 indicatoron=False, value=button.value, width=8,
                                 command=change_level).place(anchor=tkinter.NW, rely=button.relY)
             placed_buttons.append(button.value)
+def start():
+
+    name=user_name.get()
+
+    user_name_label.destroy()
+    start_game_button.destroy()
+    user_name.destroy()
+
+    canvas.pack(side=tkinter.BOTTOM)
+    place_level_button(already_placed_buttons)
 
 
-place_level_button(already_placed_buttons)
-canvas.pack(side=tkinter.BOTTOM)
+
+user_name=tkinter.Entry(root)
+start_game_button=tkinter.Button(text='Start',command=start)
+user_name_label=tkinter.Label(text='Enter your name')
+user_name_label.place(rely=0.4,relx=0.29)
+user_name.place(rely=0.4,relx=0.4)
+start_game_button.place(relx=0.4,rely=0.45)
+
 root.mainloop()
 
