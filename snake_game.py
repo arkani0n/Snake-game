@@ -1,6 +1,8 @@
 import tkinter
 import operator
 import time
+import random
+
 import settings
 from entities.snake import Snake
 import engine
@@ -9,6 +11,22 @@ from tkinter import messagebox
 
 
 # ============= Functions
+
+def add_piace(level,player):
+    num= random.randint(0,3)
+    x_cord=random.randint(0,60)
+    y_cord=random.randint(0,60)
+    piece=settings.pieces[num]
+    for i in range(len(piece)):
+        piece[i]=[piece[i][0]+x_cord*10,piece[i][1]+y_cord*10]
+        if piece[i] in player.snake:
+            add_piace(level,player)
+            return
+
+    level.walls.extend(piece.copy())
+
+
+
 def show_tutorial():
     global for_labels
     for_labels = tkinter.Label(root, text=settings.for_tutorial, bg='black', fg='white', font='Calibri 13')
@@ -17,6 +35,8 @@ def show_tutorial():
 
 def show_highscore():
     global for_labels
+    if for_labels != None:
+        for_labels.destroy()
     top10 = []
     stats = engine.read_data('highscore')
     stats=sorted(stats.items(), key=operator.itemgetter(0), reverse=True)
@@ -50,7 +70,7 @@ level_switch_variable.set(None)
 for_labels = None
 already_placed_buttons = []
 
-show_massagebox = True
+is_show_massagebox = True
 user_name = None
 user_snake = Snake(root)
 current_level = None
@@ -71,18 +91,16 @@ def change_level():
 
 def play(root, canvas, current_level, user_snake, level_index):
     global for_labels
-    global show_massagebox
-    show_massagebox=True
+    global is_show_massagebox
+    is_show_massagebox=True
+    move_counter=0
 
-    print(current_level.walls)
 
-    if for_labels != None:
-        for_labels.destroy()
     if level_index == 3:
         lowest,all_scores=show_highscore()
     elif level_index == 0:
         show_tutorial()
-    while show_massagebox:
+    while is_show_massagebox:
         root.update()
         root.update_idletasks()
 
@@ -95,12 +113,14 @@ def play(root, canvas, current_level, user_snake, level_index):
                 if user_snake.eaten >= lowest:
                     all_scores.append(str(user_snake.eaten)+'='+user_name)
                 engine.update_data(all_scores)
-            if show_massagebox:
-                show_massagebox=False
+            if is_show_massagebox:
+                is_show_massagebox=False
                 is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
                 if is_again == 'yes':
-                    show_massagebox=True
+                    is_show_massagebox=True
+                    if level_index==3:
+                        show_highscore()
                     engine.restart(user_snake, current_level, level_index)
             else:
                 break
@@ -109,10 +129,12 @@ def play(root, canvas, current_level, user_snake, level_index):
                 progress = engine.read_data('progress')
                 progress[str(level_index + 1)] = '1'
                 engine.update_progress(progress)
-
                 place_level_button(already_placed_buttons)
                 return
+
             user_snake.move()
+            move_counter+=1
+
             current_level.spawn_food()
             if user_snake.head() in current_level.food:
                 current_level.food.remove(user_snake.head())
@@ -123,9 +145,12 @@ def play(root, canvas, current_level, user_snake, level_index):
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
 
-            canvas.delete('all')
+            if move_counter==50 and level_index==3:
+                add_piace(current_level,user_snake)
+                move_counter=0
 
             # draw objects
+            canvas.delete('all')
             for list, color in [[current_level.food, settings.COLOR_FOOD],
                                 [current_level.walls, settings.COLOR_WALL],
                                 [current_level.bombs, settings.COLOR_BOMB],
@@ -134,7 +159,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                 engine.draw(canvas, list, color)
 
 
-            time.sleep(0.1 if show_massagebox else 0)
+            time.sleep(0.1 if is_show_massagebox else 0)
 
 
 def place_level_button(placed_buttons):
@@ -185,5 +210,6 @@ user_name_label = tkinter.Label(text='Enter your name')
 user_name_label.place(rely=0.37, relx=0.4)
 user_name_entery.place(rely=0.4, relx=0.4)
 start_game_button.place(relx=0.45, rely=0.43)
-
 root.mainloop()
+
+
