@@ -9,6 +9,7 @@ def restart(snake, level, num):
     snake.direction = 'right'
     level.food = food.copy() if num==0 else [[-10,-10]]
     level.bombs = bombs[num].copy()
+    level.walls=walls[num].copy()
 
 def draw(canvas, list, color):
     for i in range(len(list)):

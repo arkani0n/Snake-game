@@ -13,16 +13,21 @@ from tkinter import messagebox
 # ============= Functions
 
 def add_piace(level,player):
-    num= random.randint(0,3)
-    x_cord=random.randint(0,60)
-    y_cord=random.randint(0,60)
+    num= random.randint(0,len(settings.pieces)-1)
+    x_cord=random.randint(0,50)
+    y_cord=random.randint(0,50)
     piece=settings.pieces[num]
     for i in range(len(piece)):
         piece[i]=[piece[i][0]+x_cord*10,piece[i][1]+y_cord*10]
+        if piece[i][0] >600:
+            piece[i][0]-=piece[i][0]//600*600
+        if piece[i][1] > 600:
+            piece[i][1] -= piece[i][1]//600*600
         if piece[i] in player.snake:
+            piece = None
+            print('agin',piece)
             add_piace(level,player)
             return
-
     level.walls.extend(piece.copy())
 
 
@@ -94,6 +99,7 @@ def play(root, canvas, current_level, user_snake, level_index):
     global is_show_massagebox
     is_show_massagebox=True
     move_counter=0
+    spawn_after=10
 
 
     if level_index == 3:
@@ -115,12 +121,13 @@ def play(root, canvas, current_level, user_snake, level_index):
                 engine.update_data(all_scores)
             if is_show_massagebox:
                 is_show_massagebox=False
+                if level_index == 3:
+                    show_highscore()
                 is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
                 if is_again == 'yes':
                     is_show_massagebox=True
-                    if level_index==3:
-                        show_highscore()
+
                     engine.restart(user_snake, current_level, level_index)
             else:
                 break
@@ -145,9 +152,10 @@ def play(root, canvas, current_level, user_snake, level_index):
                 current_level.bombs.remove(user_snake.head())
                 user_snake.damage(settings.DAMAGE_BOMB)
 
-            if move_counter==50 and level_index==3:
+            if move_counter==spawn_after and level_index==3:
                 add_piace(current_level,user_snake)
                 move_counter=0
+                spawn_after+=1
 
             # draw objects
             if is_show_massagebox:
