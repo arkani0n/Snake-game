@@ -150,13 +150,14 @@ def play(root, canvas, current_level, user_snake, level_index):
                 move_counter=0
 
             # draw objects
-            canvas.delete('all')
-            for list, color in [[current_level.food, settings.COLOR_FOOD],
-                                [current_level.walls, settings.COLOR_WALL],
-                                [current_level.bombs, settings.COLOR_BOMB],
-                                [current_level.win_point, settings.COLOR_WIN_POINT],
-                                [user_snake.snake, settings.COLOR_SNAKE]]:
-                engine.draw(canvas, list, color)
+            if is_show_massagebox:
+                canvas.delete('all')
+                for list, color in [[current_level.food, settings.COLOR_FOOD],
+                                    [current_level.walls, settings.COLOR_WALL],
+                                    [current_level.bombs, settings.COLOR_BOMB],
+                                    [current_level.win_point, settings.COLOR_WIN_POINT],
+                                    [user_snake.snake, settings.COLOR_SNAKE]]:
+                    engine.draw(canvas, list, color)
 
 
             time.sleep(0.1 if is_show_massagebox else 0)
