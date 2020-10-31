@@ -1,7 +1,5 @@
 import tkinter
-import operator
 import time
-import random
 
 import settings
 from entities.snake import Snake
@@ -12,87 +10,35 @@ from tkinter import messagebox
 
 # ============= Functions
 
-def add_piace(level,player):
-    num= random.randint(0,len(settings.pieces)-1)
-    x_cord=random.randint(0,50)
-    y_cord=random.randint(0,50)
-    piece=settings.pieces[num]
-    for i in range(len(piece)):
-        piece[i]=[piece[i][0]+x_cord*10,piece[i][1]+y_cord*10]
-        if piece[i][0] >600:
-            piece[i][0]-=piece[i][0]//600*600
-        if piece[i][1] > 600:
-            piece[i][1] -= piece[i][1]//600*600
-        if piece[i] in player.snake:
-            piece = None
-            print('agin',piece)
-            add_piace(level,player)
-            return
-    level.walls.extend(piece.copy())
 
-
-
-def show_tutorial():
+def start():
+    global user_name
     global for_labels
-    for_labels = tkinter.Label(root, text=settings.for_tutorial, bg='black', fg='white', font='Calibri 13')
-    for_labels.pack(side=tkinter.TOP, fill=tkinter.Y)
 
-
-def show_highscore():
-    global for_labels
     if for_labels != None:
         for_labels.destroy()
-    top10 = []
-    stats = engine.read_data('highscore')
-    stats=sorted(stats.items(), key=operator.itemgetter(0), reverse=True)
-    for i in stats:
-        if len(top10) == 10:
-            break
-        top10.append(str(i[0]) + ' ' + i[1])
-    all_scores=top10.copy()
-    lowest_score=int(top10[-1].split()[0])
-    top10_list = ''
-    for i in top10:
-        top10_list += i + '\n'
 
-    for_labels = tkinter.Label(root, text=top10_list, bg='black', fg='white')
-    for_labels.place(anchor=tkinter.SE,rely=0.5, relx=1)
-    return lowest_score, all_scores
+    else:
+        user_name_label.destroy()
 
+    user_name = user_name_entery.get()
+    if user_name == '':
+        for_labels = tkinter.Label(text='Enter your name please', bg='red')
+        for_labels.place(rely=0.37, relx=0.4)
+        return
 
-root = tkinter.Tk()
-root.resizable(width=False, height=False)
-root.geometry(settings.ROOT_SIZE)
-root.title(settings.GAME_TITLE)
-root['bg'] = settings.ROOT_BG
-canvas = tkinter.Canvas(root, width=600, height=600)
+    for i in settings.NOT_ALLOWED_SIMMONS:
+        if i in user_name:
+            if for_labels != None:
+                for_labels.destroy()
+            for_labels = tkinter.Label(text='Not allowed symbol')
+            for_labels.place(rely=0.37, relx=0.4)
+            return
 
-# ???
-level_switch_variable = tkinter.IntVar()
-level_switch_variable.set(None)
-
-# ???
-for_labels = None
-already_placed_buttons = []
-
-is_show_massagebox = True
-user_name = None
-user_snake = Snake(root)
-current_level = None
-
-
-# ??
-
-def change_level():
-    global current_level
-
-    current_level_index = level_switch_variable.get()
-
-    current_level = levels.Levels[current_level_index]
-    engine.restart(user_snake, current_level, current_level_index)
-
-    play(root, canvas, current_level, user_snake, current_level_index,)
-
+    start_game_button.destroy()
+    user_name_entery.destroy()
+    canvas.pack(side=tkinter.BOTTOM)
+    engine.place_level_button(already_placed_buttons, level_switch_variable, change_level, root)
 
 def play(root, canvas, current_level, user_snake, level_index):
     global for_labels
@@ -101,28 +47,28 @@ def play(root, canvas, current_level, user_snake, level_index):
     move_counter=0
     spawn_after=10
 
+    if for_labels != None:
+        for_labels.destroy()
 
     if level_index == 3:
-        lowest,all_scores=show_highscore()
+        lowest,all_scores,for_labels=engine.show_highscore(for_labels,root)
     elif level_index == 0:
-        show_tutorial()
+        for_labels=engine.show_tutorial(root)
     while is_show_massagebox:
         root.update()
         root.update_idletasks()
-
-
 
         # logic
         if user_snake.is_error() or (user_snake.head() in current_level.walls):
             #in_game = False
             if level_index==3:
-                if user_snake.eaten >= lowest:
+                if user_snake.eaten >= lowest or len(all_scores)<10:
                     all_scores.append(str(user_snake.eaten)+'='+user_name)
                 engine.update_data(all_scores)
             if is_show_massagebox:
                 is_show_massagebox=False
                 if level_index == 3:
-                    show_highscore()
+                    for_labels=engine.show_highscore(for_labels,root)[2]
                 is_again = tkinter.messagebox.askquestion(
                 'game over', 'Игра окончена \n Набрано:' + str(user_snake.eaten) + ' очков \n Начать заново?')
                 if is_again == 'yes':
@@ -136,7 +82,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                 progress = engine.read_data('progress')
                 progress[str(level_index + 1)] = '1'
                 engine.update_progress(progress)
-                place_level_button(already_placed_buttons)
+                engine.place_level_button(already_placed_buttons,level_switch_variable,change_level,root)
                 return
 
             user_snake.move()
@@ -153,7 +99,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                 user_snake.damage(settings.DAMAGE_BOMB)
 
             if move_counter==spawn_after and level_index==3:
-                add_piace(current_level,user_snake)
+                engine.add_piace(current_level,user_snake)
                 move_counter=0
                 spawn_after+=1
 
@@ -171,47 +117,35 @@ def play(root, canvas, current_level, user_snake, level_index):
             time.sleep(0.1 if is_show_massagebox else 0)
 
 
-def place_level_button(placed_buttons):
-    progress = engine.read_data('progress')
+def change_level():
+    global current_level
 
-    # draw buttons
-    for button in settings.buttons:
+    current_level_index = level_switch_variable.get()
 
-        if button.value in placed_buttons:
-            continue
+    current_level = levels.Levels[current_level_index]
+    engine.restart(user_snake, current_level, current_level_index)
 
-        elif progress[str(button.value)] == '1':
-            tkinter.Radiobutton(root, text=button.name, variable=level_switch_variable,
-                                indicatoron=False, value=button.value, width=8,
-                                command=change_level).place(anchor=tkinter.NW, rely=button.relY)
-            placed_buttons.append(button.value)
+    play(root, canvas, current_level, user_snake, current_level_index)
 
 
-def start():
-    global user_name
-    global for_labels
-    if for_labels != None:
-        for_labels.destroy()
-    else: user_name_label.destroy()
-    user_name = user_name_entery.get()
-    if user_name=='':
-        for_labels = tkinter.Label(text='Enter your name please', bg='red')
-        for_labels.place(rely=0.37, relx=0.4)
-        return
-    for i in settings.NOT_ALLOWED_SIMMONS:
-        if i in user_name:
-            if for_labels != None:
-                for_labels.destroy()
-            for_labels=tkinter.Label(text='Not allowed symbol')
-            for_labels.place(rely=0.37, relx=0.4)
+root = tkinter.Tk()
+root.resizable(width=False, height=False)
+root.geometry(settings.ROOT_SIZE)
+root.title(settings.GAME_TITLE)
+root['bg'] = settings.ROOT_BG
+canvas = tkinter.Canvas(root, width=600, height=600)
 
-            return
 
-    start_game_button.destroy()
-    user_name_entery.destroy()
+level_switch_variable = tkinter.IntVar()
+level_switch_variable.set(None)
 
-    canvas.pack(side=tkinter.BOTTOM)
-    place_level_button(already_placed_buttons)
+already_placed_buttons = []
+is_show_massagebox = True
+user_snake = Snake(root)
+current_level = None
+for_labels = None
+user_name = None
+
 
 user_name_entery = tkinter.Entry(root)
 start_game_button = tkinter.Button(text='Start', command=start)
@@ -220,5 +154,3 @@ user_name_label.place(rely=0.37, relx=0.4)
 user_name_entery.place(rely=0.4, relx=0.4)
 start_game_button.place(relx=0.45, rely=0.43)
 root.mainloop()
-
-
