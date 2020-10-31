@@ -1,4 +1,3 @@
-
 class Snake:
     def __init__(self, root):
         self.snake = [[10, 10], [10, 20], [10, 30]]
@@ -9,7 +8,7 @@ class Snake:
         self.root.bind('<s>', self.change_direction)
         self.root.bind('<d>', self.change_direction)
         self.root.bind('<a>', self.change_direction)
-        self.wait_until_next_move=False
+        self.wait_until_next_move = False
 
     def move(self):
         # head move
@@ -22,8 +21,8 @@ class Snake:
             self.snake[0][1] += 10
         if self.direction == 'up':
             self.snake[0][1] -= 10
-        self.wait_until_next_move=False
-            # body move
+        self.wait_until_next_move = False
+        # body move
         if len(self.snake) == 1:
             return
         for i in range(len(self.snake)):
@@ -31,18 +30,18 @@ class Snake:
                 self.snake[1] = head.copy()
                 break
             self.snake[-i - 1] = self.snake[
-                -i - 2].copy()  # replasing every part coordinates to coordinates of next part
+                -i - 2].copy()  # replacing every part coordinates to coordinates of next part
 
     def change_direction(self, event):
-        if event.keysym == 'w' and self.direction != 'down' and self.wait_until_next_move==False:
+        if event.keysym == 'w' and self.direction != 'down' and self.wait_until_next_move == False:
             self.direction = 'up'
-        if event.keysym == 's' and self.direction != 'up' and self.wait_until_next_move==False:
+        if event.keysym == 's' and self.direction != 'up' and self.wait_until_next_move == False:
             self.direction = 'down'
-        if event.keysym == 'd' and self.direction != 'left' and self.wait_until_next_move==False:
+        if event.keysym == 'd' and self.direction != 'left' and self.wait_until_next_move == False:
             self.direction = 'right'
-        if event.keysym == 'a' and self.direction != 'right' and self.wait_until_next_move==False:
+        if event.keysym == 'a' and self.direction != 'right' and self.wait_until_next_move == False:
             self.direction = 'left'
-        self.wait_until_next_move=True
+        self.wait_until_next_move = True
 
     def grow(self):
         self.snake.append(self.snake[-1].copy())
@@ -50,6 +49,8 @@ class Snake:
     def damage(self, num):
         for i in range(num if len(self.snake) > num else len(self.snake)):
             self.snake.remove(self.snake[0])
+            if self.snake != []:
+                self.snake.pop()
 
     def is_error(self):
         if len(self.snake) == 0 or \
@@ -62,4 +63,3 @@ class Snake:
 
     def head(self):
         return self.snake[0]
-

@@ -26,23 +26,31 @@ buttons = [
 
 
 # gameplay
-DAMAGE_BOMB = 2
+DAMAGE_BOMB = 1
 
 for_tutorial='Use W A S D to move \n' \
              'green squares is food, eat them to grow \n' \
-             'red squares is bombs they will decrease' \
-             'your lenght by ' + str(DAMAGE_BOMB) + '\n' \
+             'red squares is bombs they will decrease ' \
+             'your length by ' + str(DAMAGE_BOMB) + '\n' \
             'blue squares is walls hiting them will make ' \
             'your game over'
 
 pieces=[[[0,0],[10,0],[20,0],[30,0],[40,0],[50,0]],
+
         [[0,0],[0,10],[0,20],[0,30],[0,40],[0,50]],
+
         [[0,0],[0,10],[0,20],[10,20],[20,20]],
+
         [[0,0],[10,0],[10,10],[0,10]],
+
         [[0,0],[10,10],[20,0],[30,10],[40,0],[50,10]],
+
         [[0, 0], [0, 10], [0, 20], [10, 0], [20, 0]],
+
         [[40, 0], [50, 0], [60, 0], [60, 10], [60, 20]],
+
         [[20, 0], [20, 10], [20, 20], [10, 20], [0, 20]],
+
         [[0, 0], [10, 10], [0, 20], [10, 30], [0, 40]]
         ]
 
