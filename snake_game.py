@@ -65,10 +65,10 @@ def play(root, canvas, current_level, user_snake, level_index):
                 if user_snake.eaten >= lowest or len(all_scores) < 10:
                     all_scores.append(str(user_snake.eaten) + '=' + user_name)
                 engine.update_data(all_scores)
+                for_labels = engine.show_highscore(for_labels, root)[2]
             if is_show_massagebox:
                 is_show_massagebox = False
-                if level_index == 3:
-                    for_labels = engine.show_highscore(for_labels, root)[2]
+
                 is_again = tkinter.messagebox.askquestion(
                     'game over', 'Game over \n \n Your score is: ' + str(
                         user_snake.eaten) + ' points \n \n Do you want to try again?')
@@ -120,7 +120,7 @@ def play(root, canvas, current_level, user_snake, level_index):
                                     [user_snake.snake, settings.COLOR_SNAKE]]:
                     engine.draw(canvas, list, color)
 
-            time.sleep(0.1 if is_show_massagebox else 0)
+            time.sleep(settings.DALEY if is_show_massagebox else 0)
 
 
 def change_level():

@@ -27,6 +27,7 @@ buttons = [
 
 # gameplay
 DAMAGE_BOMB = 1
+DALEY=0.15
 
 for_tutorial='Use W A S D to move \n' \
              'green squares is food, eat them to grow \n' \
